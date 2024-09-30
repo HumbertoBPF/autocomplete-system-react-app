@@ -48,7 +48,12 @@ function Search() {
                     onChange={handleChange}
                     value={searchedWord}
                 />
-                <Button color="secondary" variant="contained">
+                <Button
+                    color="secondary"
+                    type="submit"
+                    variant="contained"
+                    data-testid="submit-button"
+                >
                     Search
                 </Button>
             </Box>

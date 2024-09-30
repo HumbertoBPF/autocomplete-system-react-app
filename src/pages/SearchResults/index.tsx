@@ -8,17 +8,14 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { instance } from 'api/http';
+import { searchWord } from 'api/endpoints';
 import SearchBar from 'components/SearchBar';
 import IWord from 'interfaces/IWord';
 import { FormEvent, SyntheticEvent, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 function SearchResults() {
-    const location = useLocation();
-    const { search } = location;
-
-    const searchParams = new URLSearchParams(search);
+    const [searchParams] = useSearchParams();
     const query = searchParams.get('q');
 
     const [word, setWord] = useState<IWord>();
@@ -31,16 +28,18 @@ function SearchResults() {
         setWord(undefined);
         setLoading(true);
 
-        instance
-            .get(`/search?query=${query}`)
+        const searchParams = new URLSearchParams();
+
+        searchParams.set('query', query ?? '');
+
+        searchWord(searchParams)
             .then((response) => {
                 const { data } = response;
                 setLoading(false);
                 setWord(data);
             })
-            .catch(() => {
+            .catch((error) => {
                 setLoading(false);
-                console.log('heyyy');
             });
     }, [query]);
 
@@ -59,10 +58,14 @@ function SearchResults() {
     const renderResults = () => {
         return word ? (
             <>
-                <Typography variant="h3">{word.word}</Typography>
+                <Typography variant="h3" data-testid="word">
+                    {word.word}
+                </Typography>
                 <ol>
                     {word.meanings.map((meaning, index) => (
-                        <li key={index}>{meaning.text}</li>
+                        <li key={index} data-testid={`meaning-${index}`}>
+                            {meaning.text}
+                        </li>
                     ))}
                 </ol>
             </>
@@ -86,6 +89,7 @@ function SearchResults() {
                         sx={{ ml: '16px' }}
                         display="inline"
                         variant="h6"
+                        data-testid="not-found"
                     >
                         No result was found for your search
                     </Typography>

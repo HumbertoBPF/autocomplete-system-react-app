@@ -1,6 +1,6 @@
 import { Search } from '@mui/icons-material';
 import { Autocomplete, InputAdornment, TextField } from '@mui/material';
-import { instance } from 'api/http';
+import { autocomplete } from 'api/endpoints';
 import { ReactNode, SyntheticEvent, useRef, useState } from 'react';
 
 interface SearchBarProps {
@@ -28,8 +28,7 @@ function SearchBar({
         searchParams.set('query', value);
         query.current = value;
 
-        instance
-            .get(`/autocomplete?${searchParams}`)
+        autocomplete(searchParams)
             .then((response) => {
                 const { data, request } = response;
                 const { responseURL } = request;
@@ -65,7 +64,12 @@ function SearchBar({
                             ),
                             endAdornment,
                         },
+                        htmlInput: {
+                            ...params.inputProps,
+                            'data-testid': 'search-bar-input',
+                        },
                     }}
+                    data-testid="search-bar-textfield"
                     {...params}
                 />
             )}
